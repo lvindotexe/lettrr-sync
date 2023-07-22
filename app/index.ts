@@ -1,18 +1,25 @@
 import { parseHTML } from 'npm:linkedom';
 import { daily } from 'https://deno.land/x/deno_cron@v1.0.0/cron.ts';
 
+const PORT = Number(Deno.env.get('PORT'))!
+const NAME = Deno.env.get('NAME')!
+
 type Movie = {
 	imdb_id: string;
 	name: string;
 	year: string;
 };
 
+type Config = {
+	username: string;
+	server: {
+		port: number;
+	};
+};
+
 type MovieInfo = { letter_id: string } & Movie;
 
 const db = await Deno.openKv('database/movies');
-const user = await Deno.readTextFile('config.json').then((contents) =>
-	JSON.parse(contents) as { username: string }
-);
 
 function findMoviesInList(
 	document: Document,
@@ -95,10 +102,15 @@ async function fetchMovieInfo(
 	return { imdb_id, year, name };
 }
 
-daily(() => updateList(`https://letterboxd.com/${user}/watchlist`));
-Deno.serve(async () => {
+daily(() => updateList(`https://letterboxd.com/${NAME}/watchlist`));
+Deno.serve({
+	port: PORT,
+	onListen: () => console.log(`listening on port ${PORT}`),
+}, async () => {
 	const moviesIter = db.list<MovieInfo>({ prefix: ['movies'] });
 	const movies = [];
 	for await (const { value } of moviesIter) movies.push(value);
-	return new Response(JSON.stringify(movies));
+	const headers = new Headers();
+	headers.set('Content-Type', 'application/json');
+	return new Response(JSON.stringify(movies), { headers });
 });

@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    container_name: lettrr-sync
+    image: deno-image
+    environment:
+      PORT: ${PORT}
+      NAME: ${NAME}
+    ports:
+      - "${PORT}:8000"
