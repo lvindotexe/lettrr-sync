@@ -1,0 +1,29 @@
+{
+  "lock": false,
+  "tasks": {
+    "update": "deno --reload main.ts",
+    "dev": "deno run -A --watch --unstable  index.ts",
+    "start": "deno run -A --watch --unstable  index.ts"
+  },
+  "imports": {
+    "$std/": "https://deno.land/std@0.193.0/"
+  },
+  "fmt": {
+    "useTabs": true,
+    "lineWidth": 80,
+    "semiColons": true,
+    "proseWrap": "preserve",
+    "singleQuote": true,
+    "include": [
+      "index.ts"
+    ]
+  },
+  "compilerOptions": {
+    "lib": [
+      "deno.window",
+      "DOM",
+      "deno.unstable",
+      "DOM.iterable"
+    ]
+  }
+}
