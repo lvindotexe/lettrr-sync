@@ -6,7 +6,7 @@ services:
     container_name: lettrr-sync
     image: deno-image
     environment:
-      PORT: ${PORT}
-      NAME: ${NAME}
+      NAME: plusquare
+      PORT: 6969
     ports:
-      - "${PORT}:8000"
+      - "6969:6969"

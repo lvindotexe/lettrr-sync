@@ -10,13 +10,6 @@ type Movie = {
 	year: string;
 };
 
-type Config = {
-	username: string;
-	server: {
-		port: number;
-	};
-};
-
 type MovieInfo = { letter_id: string } & Movie;
 
 const db = await Deno.openKv('database/movies');
