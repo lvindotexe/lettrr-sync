@@ -5,7 +5,7 @@ const PORT = Number(Deno.env.get('PORT'))!
 const NAME = Deno.env.get('NAME')!
 
 type Movie = {
-	imdb_id: string;
+	id: string;
 	name: string;
 	year: string;
 };
@@ -22,8 +22,8 @@ function findMoviesInList(
 			async (e) => {
 				const { attributes } = e;
 				const letter_id = attributes.getNamedItem('data-film-id')?.value!;
-				const movieLink = attributes.getNamedItem('data-film-slug')?.value;
-				const movieInfo = await fetchMovieInfo(movieLink!);
+				const movieLink = attributes.getNamedItem('data-film-slug')?.value!;
+				const movieInfo = await fetchMovieInfo(movieLink);
 				return { letter_id, ...movieInfo };
 			},
 		),
@@ -54,11 +54,11 @@ export async function updateList(url: string) {
 	const movies = await fetchList(url);
 	const moviesDB = new Map<string, MovieInfo>();
 	const moviesIter = db.list<MovieInfo>({ prefix: ['movies'] });
-	for await (const { value } of moviesIter) moviesDB.set(value.imdb_id, value);
+	for await (const { value } of moviesIter) moviesDB.set(value.id, value);
 	for (const [i, movie] of movies.entries()) {
 		const { value } = await db.get<MovieInfo>(['movies', movie.name]);
 		if (value) delete movies[i];
-		moviesDB.delete(movie.imdb_id);
+		moviesDB.delete(movie.id);
 	}
 	for await (const movie of movies) {
 		if (movie) await db.set(['movies', movie.name], movie);
@@ -74,7 +74,7 @@ async function fetchMovieInfo(
 	const { document } = await fetch(`https://letterboxd.com${slug}`).then(
 		(response) => response.text().then(parseHTML),
 	);
-	let imdb_id: string;
+	let id: string;
 	let year: string;
 	const name = document.querySelector('meta[property="og:title"]')
 		//@ts-expect-error slutty types
@@ -86,13 +86,13 @@ async function fetchMovieInfo(
 			continue;
 		}
 		if (href.includes('www.imdb.com') && textContent) {
-			imdb_id = href.split('/').at(-2)!;
+			id = href.split('/').at(-2)!;
 			continue;
 		}
 	}
 	//@ts-expect-error slutty types
-	if (!imdb_id || !year) throw new Error('unable to find id or year');
-	return { imdb_id, year, name };
+	if (!id || !year) throw new Error('unable to find id or year');
+	return { id, year, name };
 }
 
 daily(() => updateList(`https://letterboxd.com/${NAME}/watchlist`));
