@@ -3,7 +3,7 @@ name: push to docker on commit
 on:
   push:
     branches:
-      - main
+      - master
 
 env:
   REGISTRY: "lvindotexe"
@@ -17,6 +17,8 @@ jobs:
     steps:
     - name: Checkout main
       uses: actions/checkout@v2
+      with:
+        ref: master
 
     - name: Build container image
       run: docker compose -f docker-compose.yml build
