@@ -21,7 +21,7 @@ jobs:
         ref: master
         
     - name: Build container image
-      run: docker compose -f docker-compose.yml build docker-compose.yaml
+      run: docker build -t ${{env.IMAGE_NAME}}:${{env.TAG}} .
 
     - name: Tag container image
       run: docker tag ${{ env.IMAGE_NAME }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
