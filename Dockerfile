@@ -1,7 +1,5 @@
 FROM denoland/deno
 
-EXPOSE ${PORT}
-
 WORKDIR /app
 
 ADD ./app /app
